@@ -30,7 +30,7 @@ public class ForkliftControllerEditor : Editor
         foldoutStyle.fontStyle = FontStyle.Bold;
         foldoutStyle.normal.textColor = Color.white;
 
-        //----------------------------------------------------------------------  WHEEL COLLÝDER ----------------------------------------------------------------------------------------------------\\
+        //----------------------------------------------------------------------  WHEEL COLLIDER ----------------------------------------------------------------------------------------------------\\
 
         showWheelColliders = EditorGUILayout.BeginFoldoutHeaderGroup(showWheelColliders, "Wheel Colliders", foldoutStyle);
         EditorGUILayout.Space(3);
@@ -64,7 +64,7 @@ public class ForkliftControllerEditor : Editor
         EditorGUILayout.EndFoldoutHeaderGroup();
         EditorGUILayout.Space();
         
-        //---------------------------------------------------------------------- MOTOR SETTÝNGS -----------------------------------------------------------------------------------------------------\\
+        //---------------------------------------------------------------------- MOTOR SETTINGS -----------------------------------------------------------------------------------------------------\\
 
         motorSettings = EditorGUILayout.BeginFoldoutHeaderGroup(motorSettings, "Motor Settings", foldoutStyle);
         EditorGUILayout.Space(3);
@@ -94,7 +94,7 @@ public class ForkliftControllerEditor : Editor
         EditorGUILayout.EndFoldoutHeaderGroup();
         EditorGUILayout.Space();
 
-        //---------------------------------------------------------------------- CENTER OF MASS POSÝTÝON --------------------------------------------------------------------------------------------\\
+        //---------------------------------------------------------------------- CENTER OF MASS POSITION --------------------------------------------------------------------------------------------\\
 
         showCenterOfMassPosition = EditorGUILayout.BeginFoldoutHeaderGroup(showCenterOfMassPosition, "Center Of Mass Position", foldoutStyle);
         EditorGUILayout.Space(3);
