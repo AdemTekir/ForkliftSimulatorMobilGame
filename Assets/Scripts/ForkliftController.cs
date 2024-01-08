@@ -3,39 +3,54 @@ using UnityEngine.UI;
 
 public class ForkliftController : MonoBehaviour
 {
-    [SerializeField] WheelCollider frontRightWheel;
-    [SerializeField] WheelCollider frontLeftWheel;
-    [SerializeField] WheelCollider backRightWheel;
-    [SerializeField] WheelCollider backLeftWheel;
+    public WheelCollider frontRightWheel;
+    public WheelCollider frontLeftWheel;
+    public WheelCollider backRightWheel;
+    public WheelCollider backLeftWheel;
 
-    [SerializeField] Transform frontRightWheelTransform;
-    [SerializeField] Transform frontLeftWheelTransform;
-    [SerializeField] Transform backRightWheelTransform;
-    [SerializeField] Transform backLeftWheelTransform;
+    public Transform frontRightWheelTransform;
+    public Transform frontLeftWheelTransform;
+    public Transform backRightWheelTransform;
+    public Transform backLeftWheelTransform;
 
     Rigidbody rb;
 
     public Vector3 centerOfMassPosition;
-    
+    public Vector3 defaultCenterOfMassPosition = Vector3.zero;
+
     public GameObject inGameMenu;
     public GameObject steeringWheelUI;
     public GameObject gearUI;
+    public GameObject gearUI_D;
+    public GameObject gearUI_R;
     public GameObject lift;
     public Slider currentFuelSlider;
-    
-    public float acceleration;
-    public float brakeForce;
-    public float currentFuel;
 
-    private float maxFuelSlider;
+    public AnimationCurve carAccelerationCurve;
+    public AnimationCurve carSpeedCurve;
+    Keyframe[] ks;
+
+    public float maxEngineTorque;
+    public float carSpeed;
+    public float carSpeedHasChanged;
+    public float acceleration;
+    public float accelerationHasChanged;
+    public float brakeForce;
+    
+    public float currentFuel;
+    public float maxFuelSlider;
+    
     private float currentAcceleration;
     private float currentBrakeForce;
+
     private float currentWheelTurnAngle;
     private float maxWheelTurnAngle = 40f;
-    
+
     private bool liftUpState = false;
     private bool liftDownState = false;
+    
     private bool gearState;
+    
     private bool fuelState;
 
     private void Start()
@@ -43,11 +58,14 @@ public class ForkliftController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = centerOfMassPosition;
         maxFuelSlider = currentFuel;
+
+        InspectorAnimationCurve();
     }
 
     private void Update()
     {
         FuelCountDownSystem();
+        carSpeed = rb.velocity.magnitude;
     }
 
     void FixedUpdate()
@@ -60,14 +78,27 @@ public class ForkliftController : MonoBehaviour
 
         if (liftUpState)
         {
-            lift.transform.localPosition = new Vector3(lift.transform.localPosition.x, 
+            lift.transform.localPosition = new Vector3(lift.transform.localPosition.x,
                 Mathf.Clamp(lift.transform.localPosition.y + Time.deltaTime, 2.2f, 9.0f), lift.transform.localPosition.z);
         }
         if (liftDownState)
         {
-            lift.transform.localPosition = new Vector3(lift.transform.localPosition.x, 
+            lift.transform.localPosition = new Vector3(lift.transform.localPosition.x,
                 Mathf.Clamp(lift.transform.localPosition.y - Time.deltaTime, 2.2f, 9.0f), lift.transform.localPosition.z);
         }
+    }
+
+    public void InspectorAnimationCurve()
+    {
+        ks = new Keyframe[1];
+        for (var i = 0; i < ks.Length; i++)
+        {
+            ks[i] = new Keyframe(i, Mathf.Sin(i));
+        }
+        carSpeedCurve = new AnimationCurve(ks);
+        carAccelerationCurve = new AnimationCurve(ks);
+        accelerationHasChanged = acceleration;
+        carSpeedHasChanged = carSpeed;
     }
 
     public void Acceleration(bool check)
@@ -118,8 +149,8 @@ public class ForkliftController : MonoBehaviour
 
     void TurnWheel(bool check)
     {
-        //currentWheelTurnAngle = maxWheelTurnAngle * Input.GetAxis("Horizontal");
-        currentWheelTurnAngle = maxWheelTurnAngle * steeringWheelUI.GetComponent<SteeringWheelUIController>().GetClampedValue();
+        currentWheelTurnAngle = maxWheelTurnAngle * Input.GetAxis("Horizontal");   //Editor test controller (A - D)
+        //currentWheelTurnAngle = maxWheelTurnAngle * steeringWheelUI.GetComponent<SteeringWheelUIController>().GetClampedValue();
         backRightWheel.steerAngle = -currentWheelTurnAngle;
         backLeftWheel.steerAngle = -currentWheelTurnAngle;
 
@@ -131,12 +162,9 @@ public class ForkliftController : MonoBehaviour
 
     void TurnWheelRotation(WheelCollider wheelCollider, Transform transform)
     {
-        Vector3 position;
-        Quaternion rotation;
-        wheelCollider.GetWorldPose(out position, out rotation);
+        wheelCollider.GetWorldPose(out Vector3 position, out Quaternion rotation);
 
-        transform.position = position;
-        transform.rotation = rotation;
+        transform.SetPositionAndRotation(position, rotation);
     }
 
     public void CheckGear_R(bool check)
@@ -167,7 +195,7 @@ public class ForkliftController : MonoBehaviour
 
     void FuelCountDownSystem()
     {
-        if(currentFuel > 0f)
+        if (currentFuel > 0f)
         {
             if (currentFuelSlider.IsActive())
             {
